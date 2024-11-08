@@ -74,6 +74,28 @@ public class ProductoDAO {
         }
     }
 
+    public static boolean deleteProducto(String codigo) {
+        ConexionBBDD connection = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            connection = new ConexionBBDD();
+            pstmt = connection.getConnection().prepareStatement("DELETE FROM productos WHERE codigo = ?");
+            pstmt.setString(1, codigo);
+            return pstmt.executeUpdate() > 0;  // Retorna true si se eliminó al menos un registro
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;  // Retorna false en caso de error
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+                if (connection != null) connection.CloseConexion();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static ObservableList<Producto> findAll() {
         ObservableList<Producto> productos = FXCollections.observableArrayList();
         try {

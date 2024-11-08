@@ -448,6 +448,52 @@ public class productosController implements Initializable {
     }
 
     public void eliminar(ActionEvent event) {
+        // Obtener el producto seleccionado de la tabla
+        Producto productoSeleccionado = tabla.getSelectionModel().getSelectedItem();
 
+        if (productoSeleccionado == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Selección de producto");
+            alert.setHeaderText(null);
+            alert.setContentText("Por favor, seleccione un producto para eliminar.");
+            alert.showAndWait();
+            return;
+        }
+
+        // Mostrar el cuadro de confirmación para eliminar el producto
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmación de eliminación");
+        confirmacion.setHeaderText("¿Estás seguro de que deseas eliminar este producto?");
+        confirmacion.setContentText("El producto no podrá recuperarse una vez eliminado.");
+
+        // Esperar la respuesta del usuario
+        ButtonType respuesta = confirmacion.showAndWait().orElse(ButtonType.CANCEL);
+
+        if (respuesta == ButtonType.OK) {
+            // Si el usuario confirma la eliminación, proceder con la eliminación
+            boolean exito = ProductoDAO.deleteProducto(productoSeleccionado.getCodigo());
+
+            if (exito) {
+                // Si la eliminación es exitosa, mostrar un mensaje y recargar la tabla
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Producto eliminado");
+                alert.setHeaderText(null);
+                alert.setContentText("El producto ha sido eliminado correctamente.");
+                alert.showAndWait();
+
+                // Recargar la tabla de productos
+                loadProductos();
+            } else {
+                // Si ocurre un error, mostrar un mensaje de error
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error en la BBDD");
+                alert.setHeaderText(null);
+                alert.setContentText("Ocurrió un error al eliminar el producto de la base de datos.");
+                alert.showAndWait();
+            }
+        } else {
+            // Si el usuario cancela, no hacer nada
+            return;
+        }
     }
 }
