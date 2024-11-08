@@ -81,7 +81,7 @@
             <Insets top="10.0" />
          </VBox.margin>
       </HBox>
-      <TableView fx:id="tabla" prefHeight="321.0" prefWidth="859.0">
+      <TableView fx:id="tabla" onMouseClicked="#rellenarCampos" prefHeight="321.0" prefWidth="859.0">
         <columns>
           <TableColumn fx:id="colCodigo" prefWidth="75.0" text="CODIGO" />
           <TableColumn fx:id="colNombre" prefWidth="75.0" text="NOMBRE" />

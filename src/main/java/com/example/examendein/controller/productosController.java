@@ -14,6 +14,7 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +25,7 @@ import java.util.ResourceBundle;
 import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -214,6 +216,42 @@ public class productosController implements Initializable {
             // Cargar la imagen seleccionada en el ImageView
             String imagePath = selectedFile.toURI().toString();
             ivImagenProducto.setImage(new Image(imagePath));
+        }
+    }
+
+    public void rellenarCampos(MouseEvent mouseEvent) {
+        // Obtener el producto seleccionado de la tabla
+        Producto productoSeleccionado = tabla.getSelectionModel().getSelectedItem();
+
+        if (productoSeleccionado != null) {
+            // Cargar los datos del producto seleccionado en los campos de la UI
+
+            // Rellenar los campos de texto
+            tfCodigo.setText(productoSeleccionado.getCodigo());
+            tfNombre.setText(productoSeleccionado.getNombre());
+            tfPrecio.setText(String.valueOf(productoSeleccionado.getPrecio()));
+
+            // Marcar el CheckBox si el producto está disponible (1 es disponible)
+            chxDisponible.setSelected(productoSeleccionado.getDisponible() == 1);
+
+            // Verificar si el producto tiene una imagen y cargarla
+            if (productoSeleccionado.getImagen() != null) {
+                Blob imagenBlob = productoSeleccionado.getImagen();
+                try {
+                    byte[] imageBytes = imagenBlob.getBytes(1, (int) imagenBlob.length());
+                    Image image = new Image(new ByteArrayInputStream(imageBytes));
+                    ivImagenProducto.setImage(image);  // Mostrar imagen en el ImageView
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error al cargar imagen");
+                    alert.setContentText("Hubo un problema al cargar la imagen del producto.");
+                    alert.showAndWait();
+                }
+            } else {
+                // Si no hay imagen, limpiar el ImageView
+                ivImagenProducto.setImage(null);
+            }
         }
     }
 }
