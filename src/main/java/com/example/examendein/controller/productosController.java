@@ -641,4 +641,22 @@ public class productosController implements Initializable {
         btnActualizar.setDisable(true);
     }
 
+    /**
+     * Muestra una ventana de ayuda con información sobre la versión de la aplicación y el autor.
+     *
+     * @param event El evento generado al hacer clic en el botón de ayuda.
+     */
+    public void ayuda(ActionEvent event) {
+        // Crear una alerta informativa
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
+        // Configurar el título y el contenido de la alerta
+        alert.setTitle("Información de la aplicación");
+        alert.setHeaderText("Gestión de productos 1.0");
+        alert.setContentText("Desarrollado por: Joel González Salgado");
+
+        // Mostrar la alerta
+        alert.showAndWait();
+    }
+
 }
