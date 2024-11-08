@@ -63,7 +63,7 @@ public class Producto {
         this.imagen = imagen;
     }
 
-    // Método toString para una representación en texto del objeto
+    // Metodo toString para una representación en texto del objeto
     @Override
     public String toString() {
         return "Producto{" +
