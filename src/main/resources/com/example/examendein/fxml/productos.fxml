@@ -74,7 +74,7 @@
       <HBox alignment="CENTER" prefHeight="55.0" prefWidth="859.0" spacing="50.0">
          <children>
             <Button fx:id="btnCrear" mnemonicParsing="false" onAction="#darDeAlta" prefHeight="42.0" prefWidth="120.0" text="Crear" />
-            <Button fx:id="btnActualizar" disable="true" mnemonicParsing="false" prefHeight="42.0" prefWidth="120.0" text="Actualizar" />
+            <Button fx:id="btnActualizar" disable="true" mnemonicParsing="false" onAction="#actualizarProducto" prefHeight="42.0" prefWidth="120.0" text="Actualizar" />
             <Button fx:id="btnLimpiar" mnemonicParsing="false" prefHeight="42.0" prefWidth="120.0" text="Limpiar" />
          </children>
          <VBox.margin>

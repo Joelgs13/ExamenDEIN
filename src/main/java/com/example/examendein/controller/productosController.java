@@ -14,6 +14,7 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,10 +26,13 @@ import java.util.ResourceBundle;
 import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
+import javafx.scene.image.PixelReader;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import javax.imageio.ImageIO;
 import javax.sql.rowset.serial.SerialBlob;
 
 public class productosController implements Initializable {
@@ -238,9 +242,18 @@ public class productosController implements Initializable {
             if (productoSeleccionado.getImagen() != null) {
                 Blob imagenBlob = productoSeleccionado.getImagen();
                 try {
+                    // Obtener los bytes de la imagen desde el Blob
                     byte[] imageBytes = imagenBlob.getBytes(1, (int) imagenBlob.length());
-                    Image image = new Image(new ByteArrayInputStream(imageBytes));
-                    ivImagenProducto.setImage(image);  // Mostrar imagen en el ImageView
+
+                    // Crear un InputStream desde los bytes leídos
+                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(imageBytes);
+
+                    // Crear la imagen a partir del InputStream
+                    Image image = new Image(byteArrayInputStream);
+
+                    // Mostrar imagen en el ImageView
+                    ivImagenProducto.setImage(image);
+
                 } catch (SQLException e) {
                     e.printStackTrace();
                     Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -252,6 +265,176 @@ public class productosController implements Initializable {
                 // Si no hay imagen, limpiar el ImageView
                 ivImagenProducto.setImage(null);
             }
+
+            // Deshabilitar el botón "Crear" y habilitar el botón "Actualizar"
+            btnCrear.setDisable(true);
+            btnActualizar.setDisable(false);
+            tfCodigo.setDisable(true);
+
+        } else {
+            // Si no hay un producto seleccionado, habilitar el botón "Crear" y deshabilitar el botón "Actualizar"
+            btnCrear.setDisable(false);
+            btnActualizar.setDisable(true);
+        }
+    }
+
+    public void actualizarProducto(ActionEvent event) {
+        // Obtener los valores de los campos del formulario
+        String codigo = tfCodigo.getText().trim();
+        String nombre = tfNombre.getText().trim();
+        String precioStr = tfPrecio.getText().trim();
+        boolean disponible = chxDisponible.isSelected();
+
+        // Obtener el producto seleccionado en la tabla
+        Producto productoSeleccionado = tabla.getSelectionModel().getSelectedItem();
+
+        // Verificar si se ha seleccionado un producto
+        if (productoSeleccionado == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("No se ha seleccionado ningún producto.");
+            alert.showAndWait();
+            return;
+        }
+
+        // Validaciones de los datos
+        StringBuilder errorMessages = new StringBuilder();
+
+        if (codigo.isEmpty() || codigo.length() != 5) {
+            errorMessages.append("El código debe tener exactamente 5 caracteres.\n");
+        }
+
+        if (nombre.isEmpty()) {
+            errorMessages.append("El nombre del producto es obligatorio.\n");
+        }
+
+        float precio = 0;
+        try {
+            precio = Float.parseFloat(precioStr);
+        } catch (NumberFormatException e) {
+            errorMessages.append("El precio debe ser un número decimal válido.\n");
+        }
+
+        if (precio <= 0) {
+            errorMessages.append("El precio debe ser mayor que cero.\n");
+        }
+
+        // Si hay errores de validación, mostramos la alerta
+        if (errorMessages.length() > 0) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Errores de validación");
+            alert.setHeaderText(null);
+            alert.setContentText(errorMessages.toString());
+            alert.showAndWait();
+            return;
+        }
+
+        // Si el producto es el mismo, mostrar una alerta
+        if (productoSeleccionado.getCodigo().equals(codigo) &&
+                productoSeleccionado.getNombre().equals(nombre) &&
+                productoSeleccionado.getPrecio() == precio &&
+                productoSeleccionado.getDisponible() == (disponible ? 1 : 0) &&
+                (productoSeleccionado.getImagen() == null && ivImagenProducto.getImage() == null ||
+                        productoSeleccionado.getImagen() != null && ivImagenProducto.getImage() == null)) {
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Sin cambios");
+            alert.setHeaderText(null);
+            alert.setContentText("El producto no ha cambiado, no se actualizó.");
+            alert.showAndWait();
+            return;
+        }
+
+        // Si el producto tiene una imagen y se quiere cambiar, no se podrá dejar en blanco
+        Blob imagenBlob = null;
+        if (ivImagenProducto.getImage() != null) {
+            try {
+                // Convertir la imagen a un Blob si está presente
+                byte[] imageBytes = imagenToBytes(ivImagenProducto.getImage());
+                imagenBlob = new SerialBlob(imageBytes);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error al guardar imagen");
+                alert.setContentText("Error al convertir la imagen.");
+                alert.showAndWait();
+                return;
+            }
+        } else if (productoSeleccionado.getImagen() == null) {
+            // Si el producto original no tiene imagen, no es obligatorio actualizarla
+            imagenBlob = null;
+        } else {
+            // Si el producto ya tiene una imagen, no puede dejarse en blanco
+            imagenBlob = productoSeleccionado.getImagen();
+        }
+
+        // Crear el objeto Producto con los nuevos datos
+        Producto productoActualizado = new Producto(codigo, nombre, precio, disponible ? 1 : 0, imagenBlob);
+
+        // Llamar al DAO para actualizar el producto
+        boolean exito = ProductoDAO.updateProducto(productoActualizado);
+
+        // Mostrar mensaje dependiendo del resultado de la actualización
+        if (exito) {
+            // Si la actualización fue exitosa, recargar la tabla
+            loadProductos();
+
+            // Limpiar los campos del formulario
+            tfCodigo.clear();
+            tfNombre.clear();
+            tfPrecio.clear();
+            chxDisponible.setSelected(false);
+            ivImagenProducto.setImage(null);
+
+            // Deshabilitar el botón "Actualizar" y habilitar el botón "Crear"
+            btnActualizar.setDisable(true);
+            btnCrear.setDisable(false);
+            tfCodigo.setDisable(false);
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Producto actualizado");
+            alert.setHeaderText(null);
+            alert.setContentText("El producto ha sido actualizado exitosamente.");
+            alert.showAndWait();
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error en la BBDD");
+            alert.setHeaderText(null);
+            alert.setContentText("Hubo un problema al actualizar el producto.");
+            alert.showAndWait();
+        }
+    }
+
+    public byte[] imagenToBytes(Image image) {
+        // Crear un BufferedImage vacío donde dibujaremos los píxeles de la imagen
+        int width = (int) image.getWidth();
+        int height = (int) image.getHeight();
+        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+        // Obtener el PixelReader de la imagen de JavaFX
+        PixelReader pixelReader = image.getPixelReader();
+
+        // Recorrer los píxeles de la imagen y copiarlos al BufferedImage
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                Color color = pixelReader.getColor(x, y);
+                // Convertir el color a un formato de color compatible con BufferedImage
+                int argb = (int) (color.getOpacity() * 255) << 24 | (int) (color.getRed() * 255) << 16 |
+                        (int) (color.getGreen() * 255) << 8 | (int) (color.getBlue() * 255);
+                bufferedImage.setRGB(x, y, argb);
+            }
+        }
+
+        // Convertir el BufferedImage a un array de bytes
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try {
+            // Usamos ImageIO para convertir la imagen a bytes en formato PNG
+            ImageIO.write(bufferedImage, "png", byteArrayOutputStream);
+            return byteArrayOutputStream.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new byte[0];  // En caso de error, retornamos un array vacío
         }
     }
 }

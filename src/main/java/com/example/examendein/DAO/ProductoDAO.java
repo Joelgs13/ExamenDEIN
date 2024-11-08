@@ -45,6 +45,34 @@ public class ProductoDAO {
         }
     }
 
+    public static boolean updateProducto(Producto p) {
+        ConexionBBDD connection = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            connection = new ConexionBBDD();
+            String sql = "UPDATE productos SET nombre = ?, precio = ?, disponible = ?, imagen = ? WHERE codigo = ?";
+            pstmt = connection.getConnection().prepareStatement(sql);
+            pstmt.setString(1, p.getNombre());
+            pstmt.setFloat(2, p.getPrecio());
+            pstmt.setInt(3, p.getDisponible());
+            pstmt.setBlob(4, p.getImagen());  // Guardar la imagen como Blob
+            pstmt.setString(5, p.getCodigo());
+
+            return pstmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+                if (connection != null) connection.CloseConexion();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public static ObservableList<Producto> findAll() {
         ObservableList<Producto> productos = FXCollections.observableArrayList();

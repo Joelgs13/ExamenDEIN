@@ -2,6 +2,7 @@ module com.example.examendein {
     requires javafx.controls;
     requires javafx.fxml;
     requires java.sql.rowset;
+    requires java.desktop;
 
 
     opens com.example.examendein to javafx.fxml;
