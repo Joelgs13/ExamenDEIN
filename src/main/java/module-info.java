@@ -5,4 +5,6 @@ module com.example.examendein {
 
     opens com.example.examendein to javafx.fxml;
     exports com.example.examendein;
+    exports com.example.examendein.controller;
+    opens com.example.examendein.controller to javafx.fxml;
 }

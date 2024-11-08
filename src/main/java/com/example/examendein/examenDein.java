@@ -8,10 +8,10 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class HelloApplication extends Application {
+public class examenDein extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("/com/example/examendein/fxml/productos.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(examenDein.class.getResource("/com/example/examendein/fxml/productos.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         stage.getIcons().add(new Image(getClass().getResourceAsStream("/com/example/examendein/img/carrito.png"))); // Establecer el ícono de la ventana
         stage.setTitle("Productos");
