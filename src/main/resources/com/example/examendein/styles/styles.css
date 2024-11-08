@@ -1,0 +1,34 @@
+/* Fondo azul fosforito para el VBox principal */
+.root {
+    -fx-background-color: #00f7ff; /* Azul fosforito */
+}
+
+/* Botones con bordes redondeados pero sin cambiar su color de fondo */
+.button {
+    -fx-background-radius: 20; /* Bordes redondeados */
+    -fx-border-radius: 20;     /* Bordes redondeados */
+    -fx-border-color: transparent; /* Sin color de borde */
+    -fx-padding: 10 20;        /* Espaciado interno */
+    -fx-font-size: 14px;       /* Tamaño de fuente */
+}
+
+/* TextFields con bordes redondeados y sin color de borde adicional */
+.text-field {
+    -fx-background-radius: 20; /* Bordes redondeados */
+    -fx-border-radius: 20;     /* Bordes redondeados */
+    -fx-border-color: transparent; /* Sin borde adicional */
+    -fx-padding: 5 10;         /* Espaciado interno */
+    -fx-font-size: 14px;       /* Tamaño de fuente */
+    -fx-background-color: white; /* Fondo blanco */
+}
+
+/* CheckBox y Label (etiquetas) sin cambios significativos, solo ajuste de fuente y color de texto */
+.check-box {
+    -fx-font-size: 14px;
+    -fx-text-fill: #333333;
+}
+
+.label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #333333;
+}
