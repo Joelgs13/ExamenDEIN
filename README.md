@@ -1,0 +1,1 @@
+Aplicacion que gestiona una pantalla que permite agregar, editar y eliminar informacion de una tabla de productos. la interfaz es atractiva segun una hoja de estilos y permite ver la imagen, saber quien es el autor etc. ademas el campo de disponibilidad aparece como un checkbox en la tabla
