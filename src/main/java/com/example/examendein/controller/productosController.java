@@ -11,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import java.io.ByteArrayOutputStream;
@@ -23,6 +24,8 @@ import java.util.ResourceBundle;
 import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 import javax.sql.rowset.serial.SerialBlob;
 
@@ -167,8 +170,14 @@ public class productosController implements Initializable {
                 // Crear un Blob a partir del array de bytes
                 imagenBlob = new SerialBlob(imageBytes);
 
-            } catch (IOException | SQLException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
+            } catch (SQLException e){
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error al crear producto");
+                alert.setHeaderText(null);
+                alert.setContentText("error generico de base de datos");
+                alert.showAndWait();
             }
         }
 
@@ -182,10 +191,28 @@ public class productosController implements Initializable {
         Alert alert = new Alert(exito ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
         alert.setTitle(exito ? "Producto creado" : "Error al crear producto");
         alert.setHeaderText(null);
-        alert.setContentText(exito ? "El producto ha sido creado exitosamente." : "Hubo un error al crear el producto.");
+        alert.setContentText(exito ? "El producto ha sido creado exitosamente." : "error generico de BBDD.");
         alert.showAndWait();
     }
 
     public void seleccionarImagen(ActionEvent event) {
+
+        // Crear un objeto FileChooser
+        FileChooser fileChooser = new FileChooser();
+
+        // Establecer un filtro para archivos .png
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png");
+        fileChooser.getExtensionFilters().add(extFilter);
+
+        // Abrir el diálogo para seleccionar un archivo
+        Stage stage = (Stage) btnCrear.getScene().getWindow();  // Obtener la ventana actual
+        java.io.File selectedFile = fileChooser.showOpenDialog(stage);
+
+        // Verificar si se seleccionó un archivo
+        if (selectedFile != null) {
+            // Cargar la imagen seleccionada en el ImageView
+            String imagePath = selectedFile.toURI().toString();
+            ivImagenProducto.setImage(new Image(imagePath));
+        }
     }
 }
