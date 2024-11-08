@@ -76,7 +76,7 @@
          <children>
             <Button fx:id="btnCrear" mnemonicParsing="false" onAction="#darDeAlta" prefHeight="42.0" prefWidth="120.0" text="Crear" />
             <Button fx:id="btnActualizar" disable="true" mnemonicParsing="false" onAction="#actualizarProducto" prefHeight="42.0" prefWidth="120.0" text="Actualizar" />
-            <Button fx:id="btnLimpiar" mnemonicParsing="false" prefHeight="42.0" prefWidth="120.0" text="Limpiar" />
+            <Button fx:id="btnLimpiar" mnemonicParsing="false" onAction="#limpiar" prefHeight="42.0" prefWidth="120.0" text="Limpiar" />
          </children>
          <VBox.margin>
             <Insets top="10.0" />

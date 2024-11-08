@@ -553,4 +553,15 @@ public class productosController implements Initializable {
             return;
         }
     }
+
+    public void limpiar(ActionEvent event) {
+        tfCodigo.clear();
+        tfNombre.clear();
+        tfPrecio.clear();
+        chxDisponible.setSelected(false);
+        ivImagenProducto.setImage(null);
+        tfCodigo.setDisable(false);
+        btnCrear.setDisable(false);
+        btnActualizar.setDisable(true);
+    }
 }
