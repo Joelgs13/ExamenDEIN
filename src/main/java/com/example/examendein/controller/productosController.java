@@ -38,8 +38,14 @@ import javafx.stage.Stage;
 import javax.imageio.ImageIO;
 import javax.sql.rowset.serial.SerialBlob;
 
+/**
+ * Controlador encargado de gestionar la interfaz de productos en la aplicación.
+ * Esta clase maneja la interacción con los elementos de la UI relacionados con la gestión de productos,
+ * como la creación, actualización, eliminación, visualización de imágenes y más.
+ */
 public class productosController implements Initializable {
 
+    // Elementos de la interfaz
     @FXML
     private MenuItem acercaDe;
 
@@ -88,6 +94,15 @@ public class productosController implements Initializable {
     @FXML
     private TextField tfPrecio;
 
+    /**
+     * Inicializa los componentes de la UI cuando se carga la vista.
+     * Enlaza las columnas de la tabla con los atributos correspondientes de la clase Producto
+     * y configura la presentación de la tabla, incluyendo la alineación de las columnas y la conversión de
+     * valores de tipo booleano para la columna de disponibilidad.
+     *
+     * @param location La ubicación relativa del archivo FXML que se ha cargado.
+     * @param resources El conjunto de recursos que se utilizan en la UI.
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // Configurar columnas para enlazarlas con los atributos de Producto
@@ -95,7 +110,7 @@ public class productosController implements Initializable {
         colNombre.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getNombre()));
         colPrecio.setCellValueFactory(cellData -> new SimpleFloatProperty(cellData.getValue().getPrecio()).asObject());
 
-        //hacer que este a la derecha el precio
+        // Alineación a la derecha de la columna precio
         colPrecio.setStyle("-fx-alignment: CENTER-RIGHT;");
 
         // Configurar la columna de disponible para mostrar un CheckBox en vez de 0/1
@@ -113,13 +128,23 @@ public class productosController implements Initializable {
         loadProductos();
     }
 
+    /**
+     * Carga los productos desde la base de datos y los muestra en la tabla de productos.
+     * Se obtiene la lista de productos a través del DAO y luego se asignan a la tabla.
+     */
     private void loadProductos() {
         ObservableList<Producto> productos = ProductoDAO.findAll();
         tabla.setItems(productos);
     }
 
+    /**
+     * Este método es llamado cuando se hace clic en el botón "Crear". Valida los campos del formulario
+     * y, si son correctos, crea un nuevo producto en la base de datos. Si la operación es exitosa,
+     * se recarga la lista de productos. Si ocurre un error, se muestra una alerta con el mensaje correspondiente.
+     */
     @FXML
     private void darDeAlta() {
+        // Obtener los valores de los campos del formulario
         String codigo = tfCodigo.getText().trim();
         String nombre = tfNombre.getText().trim();
         String precioStr = tfPrecio.getText().trim();
@@ -127,7 +152,7 @@ public class productosController implements Initializable {
 
         StringBuilder errorMessages = new StringBuilder();
 
-        // Validaciones
+        // Validaciones de los campos de entrada
         if (codigo.isEmpty() || codigo.length() != 5) {
             errorMessages.append("El código debe tener exactamente 5 caracteres.\n");
         }
@@ -148,7 +173,7 @@ public class productosController implements Initializable {
             errorMessages.append("El precio debe ser mayor que cero.\n");
         }
 
-        // Si hay errores, mostramos el mensaje de alerta
+        // Si existen errores en los campos, se muestra una alerta
         if (errorMessages.length() > 0) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Errores de validación");
@@ -187,7 +212,7 @@ public class productosController implements Initializable {
 
             } catch (IOException e) {
                 e.printStackTrace();
-            } catch (SQLException e){
+            } catch (SQLException e) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error al crear producto");
                 alert.setHeaderText(null);
@@ -196,14 +221,14 @@ public class productosController implements Initializable {
             }
         }
 
-        // Crear un objeto Producto
+        // Crear un objeto Producto con los datos validados
         Producto nuevoProducto = new Producto(codigo, nombre, precio, disponible ? 1 : 0, imagenBlob);
 
-        // Llamar al metodo de inserción en el DAO
+        // Llamar al método de inserción en el DAO
         boolean exito = ProductoDAO.addProducto(nuevoProducto);
 
+        // Recargar los productos y mostrar una alerta con el resultado de la operación
         if (exito) loadProductos();
-        // Mostrar un mensaje al usuario según el resultado de la inserción
         Alert alert = new Alert(exito ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
         alert.setTitle(exito ? "Producto creado" : "Error al crear producto");
         alert.setHeaderText(null);
@@ -211,9 +236,15 @@ public class productosController implements Initializable {
         alert.showAndWait();
     }
 
+    /**
+     * Permite al usuario seleccionar una imagen desde el sistema de archivos.
+     * El archivo seleccionado debe ser una imagen en formato PNG. Una vez seleccionada,
+     * la imagen se carga en el ImageView para ser visualizada.
+     *
+     * @param event El evento de acción generado al hacer clic en el botón de selección de imagen.
+     */
     public void seleccionarImagen(ActionEvent event) {
-
-        // Crear un objeto FileChooser
+        // Crear un objeto FileChooser para permitir al usuario seleccionar un archivo
         FileChooser fileChooser = new FileChooser();
 
         // Establecer un filtro para archivos .png
@@ -232,14 +263,20 @@ public class productosController implements Initializable {
         }
     }
 
+
+    /**
+     * Este método se ejecuta cuando se hace clic en un producto de la tabla.
+     * Carga los datos del producto seleccionado en los campos del formulario para su actualización.
+     * Si no hay producto seleccionado, los botones "Actualizar" y "Crear" se deshabilitan según corresponda.
+     *
+     * @param mouseEvent El evento de acción generado al hacer clic en un producto de la tabla.
+     */
     public void rellenarCampos(MouseEvent mouseEvent) {
         // Obtener el producto seleccionado de la tabla
         Producto productoSeleccionado = tabla.getSelectionModel().getSelectedItem();
 
         if (productoSeleccionado != null) {
-            // Cargar los datos del producto seleccionado en los campos de la UI
-
-            // Rellenar los campos de texto
+            // Rellenar los campos de texto con los datos del producto seleccionado
             tfCodigo.setText(productoSeleccionado.getCodigo());
             tfNombre.setText(productoSeleccionado.getNombre());
             tfPrecio.setText(String.valueOf(productoSeleccionado.getPrecio()));
@@ -247,7 +284,7 @@ public class productosController implements Initializable {
             // Marcar el CheckBox si el producto está disponible (1 es disponible)
             chxDisponible.setSelected(productoSeleccionado.getDisponible() == 1);
 
-            // Verificar si el producto tiene una imagen y cargarla
+            // Verificar si el producto tiene una imagen y cargarla en el ImageView
             if (productoSeleccionado.getImagen() != null) {
                 Blob imagenBlob = productoSeleccionado.getImagen();
                 try {
@@ -287,6 +324,13 @@ public class productosController implements Initializable {
         }
     }
 
+    /**
+     * Este método se ejecuta cuando se hace clic en el botón "Actualizar".
+     * Valida los datos del formulario y actualiza el producto seleccionado en la base de datos.
+     * Si no hay cambios o si los datos son incorrectos, se muestra un mensaje de error o advertencia.
+     *
+     * @param event El evento de acción generado al hacer clic en el botón "Actualizar".
+     */
     public void actualizarProducto(ActionEvent event) {
         // Obtener los valores de los campos del formulario
         String codigo = tfCodigo.getText().trim();
@@ -415,6 +459,13 @@ public class productosController implements Initializable {
         }
     }
 
+
+    /**
+     * Convierte una imagen de JavaFX a un array de bytes en formato PNG.
+     *
+     * @param image La imagen de tipo {@link Image} que se desea convertir a bytes.
+     * @return Un array de bytes que representa la imagen en formato PNG, o un array vacío en caso de error.
+     */
     public byte[] imagenToBytes(Image image) {
         // Crear un BufferedImage vacío donde dibujaremos los píxeles de la imagen
         int width = (int) image.getWidth();
@@ -447,6 +498,13 @@ public class productosController implements Initializable {
         }
     }
 
+
+    /**
+     * Muestra la imagen del producto seleccionado en una ventana modal.
+     * Si el producto no tiene imagen, se muestra una alerta informando al usuario.
+     *
+     * @param event El evento generado al hacer clic en el botón para ver la imagen del producto.
+     */
     public void verImagen(ActionEvent event) {
         // Obtener el producto seleccionado de la tabla
         Producto productoSeleccionado = tabla.getSelectionModel().getSelectedItem();
@@ -504,11 +562,20 @@ public class productosController implements Initializable {
         }
     }
 
+
+    /**
+     * Elimina el producto seleccionado de la base de datos después de confirmar la acción.
+     * Si no hay un producto seleccionado, se muestra una alerta.
+     * Si la eliminación es exitosa, se recarga la tabla y se muestra un mensaje de éxito.
+     *
+     * @param event El evento generado al hacer clic en el botón para eliminar el producto.
+     */
     public void eliminar(ActionEvent event) {
         // Obtener el producto seleccionado de la tabla
         Producto productoSeleccionado = tabla.getSelectionModel().getSelectedItem();
 
         if (productoSeleccionado == null) {
+            // Si no hay producto seleccionado, mostrar un mensaje de advertencia
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Selección de producto");
             alert.setHeaderText(null);
@@ -554,6 +621,15 @@ public class productosController implements Initializable {
         }
     }
 
+
+    /**
+     * Limpia todos los campos del formulario de entrada, incluyendo los campos de texto, el
+     * CheckBox y la imagen, y restablece los controles a su estado predeterminado.
+     * Este metodo también habilita el botón "Crear", deshabilita el botón "Actualizar",
+     * y asegura que el campo de código esté habilitado para permitir nuevas entradas.
+     *
+     * @param event El evento generado al hacer clic en el botón para limpiar los campos del formulario.
+     */
     public void limpiar(ActionEvent event) {
         tfCodigo.clear();
         tfNombre.clear();
@@ -564,4 +640,5 @@ public class productosController implements Initializable {
         btnCrear.setDisable(false);
         btnActualizar.setDisable(true);
     }
+
 }

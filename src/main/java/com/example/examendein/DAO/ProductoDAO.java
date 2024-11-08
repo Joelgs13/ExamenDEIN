@@ -7,7 +7,18 @@ import javafx.collections.ObservableList;
 
 import java.sql.*;
 
+/**
+ * Clase que maneja las operaciones relacionadas con la tabla de productos en la base de datos.
+ * Realiza operaciones como agregar, actualizar, eliminar y obtener productos.
+ */
 public class ProductoDAO {
+
+    /**
+     * Inserta un nuevo producto en la base de datos.
+     *
+     * @param p El producto a insertar.
+     * @return true si la inserción fue exitosa, false en caso contrario.
+     */
     public static boolean addProducto(Producto p) {
         ConexionBBDD connection = null;
         PreparedStatement pstmt = null;
@@ -17,17 +28,17 @@ public class ProductoDAO {
             String sql = "INSERT INTO productos (codigo, nombre, precio, disponible, imagen) VALUES (?, ?, ?, ?, ?)";
             pstmt = connection.getConnection().prepareStatement(sql);
 
-            // Set fields in the prepared statement
-            pstmt.setString(1, p.getCodigo());  // Set product code
-            pstmt.setString(2, p.getNombre());  // Set product name
-            pstmt.setFloat(3, p.getPrecio());  // Set price (as int)
-            pstmt.setInt(4, p.getDisponible());  // Set available (1 or 0)
+            // Setear los valores en el PreparedStatement
+            pstmt.setString(1, p.getCodigo());  // Setear código del producto
+            pstmt.setString(2, p.getNombre());  // Setear nombre del producto
+            pstmt.setFloat(3, p.getPrecio());  // Setear precio
+            pstmt.setInt(4, p.getDisponible());  // Setear disponibilidad (1 o 0)
 
-            // Set image as a blob
+            // Setear imagen como un blob
             if (p.getImagen() != null) {
                 pstmt.setBlob(5, p.getImagen());
             } else {
-                pstmt.setNull(5, Types.BLOB);  // If no image, set it to NULL
+                pstmt.setNull(5, Types.BLOB);  // Si no hay imagen, setear NULL
             }
 
             return pstmt.executeUpdate() > 0;
@@ -45,6 +56,12 @@ public class ProductoDAO {
         }
     }
 
+    /**
+     * Actualiza un producto en la base de datos.
+     *
+     * @param p El producto con los nuevos datos.
+     * @return true si la actualización fue exitosa, false en caso contrario.
+     */
     public static boolean updateProducto(Producto p) {
         ConexionBBDD connection = null;
         PreparedStatement pstmt = null;
@@ -74,6 +91,12 @@ public class ProductoDAO {
         }
     }
 
+    /**
+     * Elimina un producto de la base de datos mediante su código.
+     *
+     * @param codigo El código del producto a eliminar.
+     * @return true si la eliminación fue exitosa, false en caso contrario.
+     */
     public static boolean deleteProducto(String codigo) {
         ConexionBBDD connection = null;
         PreparedStatement pstmt = null;
@@ -96,6 +119,11 @@ public class ProductoDAO {
         }
     }
 
+    /**
+     * Obtiene todos los productos de la base de datos.
+     *
+     * @return Una lista observable con todos los productos.
+     */
     public static ObservableList<Producto> findAll() {
         ObservableList<Producto> productos = FXCollections.observableArrayList();
         try {
@@ -109,7 +137,7 @@ public class ProductoDAO {
                 String nombre = rs.getString("nombre");
                 float precio = rs.getFloat("precio");
                 int disponible = rs.getInt("disponible");
-                
+
                 Producto producto = new Producto(codigo, nombre, precio, disponible, null); // Imagen es null
                 productos.add(producto);
             }
