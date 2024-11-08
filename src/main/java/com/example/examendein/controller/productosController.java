@@ -9,6 +9,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.image.Image;
@@ -28,8 +29,10 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.image.PixelReader;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
@@ -445,6 +448,60 @@ public class productosController implements Initializable {
     }
 
     public void verImagen(ActionEvent event) {
+        // Obtener el producto seleccionado de la tabla
+        Producto productoSeleccionado = tabla.getSelectionModel().getSelectedItem();
+
+        if (productoSeleccionado == null) {
+            // Si no hay producto seleccionado, mostrar un mensaje de advertencia
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Seleccionar producto");
+            alert.setHeaderText(null);
+            alert.setContentText("Por favor, seleccione un producto para ver la imagen.");
+            alert.showAndWait();
+            return;
+        }
+
+        // Verificar si el producto tiene una imagen
+        if (productoSeleccionado.getImagen() != null) {
+            try {
+                // Convertir el Blob de imagen en un Image
+                Blob imagenBlob = productoSeleccionado.getImagen();
+                byte[] imageBytes = imagenBlob.getBytes(1, (int) imagenBlob.length());
+                Image image = new Image(new ByteArrayInputStream(imageBytes));
+
+                // Crear un ImageView para mostrar la imagen
+                ImageView imageView = new ImageView(image);
+                imageView.setFitWidth(300);  // Establecer el tamaño de la imagen
+                imageView.setFitHeight(300);
+                imageView.setPreserveRatio(true);  // Mantener la relación de aspecto
+
+                // Crear un contenedor para la imagen
+                StackPane root = new StackPane();
+                root.getChildren().add(imageView);
+
+                // Crear una nueva ventana modal
+                Stage stage = new Stage();
+                stage.setTitle("Imagen del Producto");
+                stage.initModality(Modality.APPLICATION_MODAL);  // Hacer la ventana modal
+                stage.setResizable(false);  // No permitir redimensionar
+                stage.setScene(new Scene(root, 300, 300));  // Establecer tamaño de la ventana
+                stage.showAndWait();  // Mostrar la ventana modal
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error al cargar imagen");
+                alert.setContentText("Hubo un problema al cargar la imagen del producto.");
+                alert.showAndWait();
+            }
+        } else {
+            // Si el producto no tiene imagen, mostrar una alerta
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Sin imagen");
+            alert.setHeaderText(null);
+            alert.setContentText("Este producto no tiene imagen asociada.");
+            alert.showAndWait();
+        }
     }
 
     public void eliminar(ActionEvent event) {
