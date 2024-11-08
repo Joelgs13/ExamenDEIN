@@ -138,7 +138,7 @@ public class productosController implements Initializable {
     }
 
     /**
-     * Este método es llamado cuando se hace clic en el botón "Crear". Valida los campos del formulario
+     * Este metodo es llamado cuando se hace clic en el botón "Crear". Valida los campos del formulario
      * y, si son correctos, crea un nuevo producto en la base de datos. Si la operación es exitosa,
      * se recarga la lista de productos. Si ocurre un error, se muestra una alerta con el mensaje correspondiente.
      */
@@ -224,7 +224,7 @@ public class productosController implements Initializable {
         // Crear un objeto Producto con los datos validados
         Producto nuevoProducto = new Producto(codigo, nombre, precio, disponible ? 1 : 0, imagenBlob);
 
-        // Llamar al método de inserción en el DAO
+        // Llamar al metodo de inserción en el DAO
         boolean exito = ProductoDAO.addProducto(nuevoProducto);
 
         // Recargar los productos y mostrar una alerta con el resultado de la operación
@@ -265,7 +265,7 @@ public class productosController implements Initializable {
 
 
     /**
-     * Este método se ejecuta cuando se hace clic en un producto de la tabla.
+     * Este metodo se ejecuta cuando se hace clic en un producto de la tabla.
      * Carga los datos del producto seleccionado en los campos del formulario para su actualización.
      * Si no hay producto seleccionado, los botones "Actualizar" y "Crear" se deshabilitan según corresponda.
      *
@@ -325,7 +325,7 @@ public class productosController implements Initializable {
     }
 
     /**
-     * Este método se ejecuta cuando se hace clic en el botón "Actualizar".
+     * Este metodo se ejecuta cuando se hace clic en el botón "Actualizar".
      * Valida los datos del formulario y actualiza el producto seleccionado en la base de datos.
      * Si no hay cambios o si los datos son incorrectos, se muestra un mensaje de error o advertencia.
      *
