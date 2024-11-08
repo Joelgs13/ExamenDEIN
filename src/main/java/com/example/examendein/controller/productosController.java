@@ -187,6 +187,7 @@ public class productosController implements Initializable {
         // Llamar al metodo de inserción en el DAO
         boolean exito = ProductoDAO.addProducto(nuevoProducto);
 
+        if (exito) loadProductos();
         // Mostrar un mensaje al usuario según el resultado de la inserción
         Alert alert = new Alert(exito ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
         alert.setTitle(exito ? "Producto creado" : "Error al crear producto");
