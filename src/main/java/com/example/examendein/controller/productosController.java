@@ -50,6 +50,12 @@ public class productosController implements Initializable {
     private Button btnLimpiar;
 
     @FXML
+    private MenuItem miEliminar;
+
+    @FXML
+    private MenuItem miVerImagen;
+
+    @FXML
     private CheckBox chxDisponible;
 
     @FXML
@@ -436,5 +442,12 @@ public class productosController implements Initializable {
             e.printStackTrace();
             return new byte[0];  // En caso de error, retornamos un array vacío
         }
+    }
+
+    public void verImagen(ActionEvent event) {
+    }
+
+    public void eliminar(ActionEvent event) {
+
     }
 }
